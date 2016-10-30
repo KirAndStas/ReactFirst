@@ -11,17 +11,32 @@ app.get('/filmList', function(req, res) {
   console.log('i receive a GET request');
 
   db.wl.find(function(err, docs) {
-    console.log(docs);
+    //console.log(docs);
     res.json(docs)
   });
 });
 
 app.post('/filmList', function(req, res) {
   console.log('i receive a POST request');
-  console.log(req.body);
+  //console.log(req.body);
   db.wl.insert(req.body)
   db.wl.find(function(err, docs) {
-    console.log(docs);
+    console.log('I return response from POST /filmList request');
+    //console.log(docs);
+    res.json(docs)
+  });
+});
+
+app.post('/filmload', function(req, res) {
+  console.log('I receive loading files');
+  var films = req.body.film
+  for (var i = 0; i<films.length; i++) {
+    var singleResu = {film: films[i]}
+    db.wl.insert(singleResu)
+  }
+  db.wl.find(function(err, docs) {
+    console.log('I return response from POST /filmList request');
+    //console.log(docs);
     res.json(docs)
   });
 });

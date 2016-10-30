@@ -1,17 +1,20 @@
 import React from 'react';
+import FileInput from 'react-file-input';
 
-var IchBinForm = require('./IchBinForm');
-var SortFilms = require('./SortFilms');
-var SearchFilm = require('./SearchFilm');
-var FilmShort = require('./FilmShort.js');
-var FilmLong = require('./FilmLong.js');
+var IchBinForm = require('./IchBinForm'),
+    SortFilms = require('./SortFilms'),
+    SearchFilm = require('./SearchFilm'),
+    FilmShort = require('./FilmShort'),
+    FilmLong = require('./FilmLong'),
+    FilmLoad = require('./FilmLoad')
+
 
 var App = React.createClass({
 
   getInitialState: function() {
     return {
       list: [],
-      newFilm: {id: "", title: "", year: "", quality: "", stars: "", Show : true },
+      newFilm: {title: "", year: "", quality: "", stars: "", Show : true },
       searchWord: '',
       searchDetails : {ByTitle: true, ByStars: false }
     }
@@ -38,14 +41,14 @@ var App = React.createClass({
 
     var thisInsideApp = this;
     for (var film=0; film < this.state.list.length; film++) {
-      if (this.state.list[film].film.id == filmId) {
+      if (this.state.list[film]._id == filmId) {
         var toChan = this.state.list[film]._id;
         var howChan = newShow;
       }
     };
 
-    console.log(toChan);
-    console.log(howChan);
+    //console.log(toChan);
+    //console.log(howChan);
 
     fetch('/filmList', {
         method: 'PUT',
@@ -62,7 +65,7 @@ var App = React.createClass({
         return response.json()
       })
       .then(function(responseJson) {
-        console.log(responseJson);
+        //console.log(responseJson);
         thisInsideApp.setState({
           list: responseJson
         })
@@ -72,7 +75,7 @@ var App = React.createClass({
   deleteFilm: function(id) {
     var thisInsideApp = this;
     for (var film=0; film < this.state.list.length; film++) {
-      if (this.state.list[film].film.id == id) {
+      if (this.state.list[film]._id == id) {
         var toDel = this.state.list[film]._id
       }
     };
@@ -90,84 +93,99 @@ var App = React.createClass({
         return response.json()
       })
       .then(function(responseJson) {
-        console.log(responseJson);
+        //console.log(responseJson);
         thisInsideApp.setState({
           list: responseJson
         })
       });
   },
 
-  seeForChangeInForm: function(change, id) {
-    var newId = this.state.list.length + 1
+  seeForChangeInForm: function(event) {
+    var whatIsDiff = event.target.value;
+    var whereIsDiff = event.target.id;
 
-    if (id == 'title') {
+    if (whereIsDiff == 'title') {
       var whatChange = {
-        id: newId,
-        title: change,
+        title: whatIsDiff,
         year: this.state.newFilm.year,
         quality: this.state.newFilm.quality,
         stars: this.state.newFilm.stars,
         Show: this.state.newFilm.Show
       }
     }
-    else if (id == 'year') {
+    else if (whereIsDiff == 'year') {
       var whatChange = {
-        id: newId,
         title: this.state.newFilm.title,
-        year: change,
+        year: whatIsDiff,
         quality: this.state.newFilm.quality,
         stars: this.state.newFilm.stars,
         Show: this.state.newFilm.Show
       }
     }
-    else if (id == 'quality') {
+    else if (whereIsDiff == 'quality') {
       var whatChange = {
-        id: newId,
         title: this.state.newFilm.title,
         year: this.state.newFilm.year,
-        quality: change,
+        quality: whatIsDiff,
         stars: this.state.newFilm.stars,
         Show: this.state.newFilm.Show
       }
     }
-    else if (id == 'stars') {
+    else if (whereIsDiff == 'stars') {
       var whatChange = {
-        id: newId,
         title: this.state.newFilm.title,
         year: this.state.newFilm.year,
         quality: this.state.newFilm.quality,
-        stars: change,
+        stars: whatIsDiff,
         Show: this.state.newFilm.Show
       }
     }
     this.setState({newFilm:whatChange})
-    //alert(this.state.newFilm.id)
   },
 
   addNewFilm: function() {
     var thisInsideApp = this;
-    var newList = this.state.list.push(this.state.newFilm);
     var filmToList = this.state.newFilm
-    console.log(filmToList)
-    fetch('/filmList', {
-        method: 'POST',
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          film: filmToList
+    var findForEqual = function(film, filmsToCheck) {
+      var back = true;
+      for (var e = 0; e<filmsToCheck.length; e++) {
+        if (film.title == filmsToCheck[e].film.title) {
+          var back = false;
+          break;
+        }
+      }
+      return back
+    };
+
+    if (findForEqual(filmToList, thisInsideApp.state.list)) {
+      fetch('/filmList', {
+          method: 'POST',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            film: filmToList
+          })
         })
+      .then(function(response) {
+        return response.json()
       })
-    .then(function(response) {
-      return response.json()
-    })
-    .then(function(responseJson) {
-      console.log(responseJson);
-      thisInsideApp.setState({
-        list: responseJson
-      })
-    });
+      .then(function(responseJson) {
+        //console.log(responseJson);
+        thisInsideApp.setState({
+          list: responseJson
+        })
+      });
+      var newFilm = {title: "", year: "", quality: "", stars: "", Show : true };
+      this.setState({
+        newFilm: newFilm
+      });
+    } else {
+      alert('Hey, bad guy. Do you think I am so stupid ?');
+    }
+
+    //console.log(filmToList);
   },
 
   sortMe:function() {
@@ -231,6 +249,71 @@ var App = React.createClass({
     this.setState({searchDetails:newSearchDetails});
   },
 
+  FilmFileLoad: function(event) {
+    var thisInsideApp = this;
+    var file = event.target.files[0];
+
+    var reader = new FileReader();
+    reader.onload = function(progressEvent){
+      // Entire file
+      var texT = this.result;
+      var texTarr = texT.split('\n\n');
+      var FilmArr = []
+      var findForEqual = function(film, filmsToCheck) {
+        var back = true;
+        for (var e = 0; e<filmsToCheck.length; e++) {
+          if (film.title == filmsToCheck[e].film.title) {
+            var back = false;
+            break;
+          }
+        }
+        return back
+      };
+
+      for (var e = 0; e<texTarr.length; e++) {
+        if (texTarr[e].substr(0, 5) == 'Title') {
+          var texTarrElem = texTarr[e];
+          var texTarrElemByItem = texTarrElem.split('\n');
+          var texTarrElemByItemObject = {
+            title: texTarrElemByItem[0].substr(7),
+            year: texTarrElemByItem[1].substr(14),
+            quality: texTarrElemByItem[2].substr(8),
+            stars: texTarrElemByItem[3].substr(7),
+            Show : true };
+          findForEqual(texTarrElemByItemObject, thisInsideApp.state.list);
+          if (findForEqual(texTarrElemByItemObject, thisInsideApp.state.list)) {
+            FilmArr.push(texTarrElemByItemObject)
+          }
+        }
+      }
+
+      //console.log(FilmArr);
+
+      fetch('/filmload', {
+          method: 'POST',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            film: FilmArr
+          })
+        })
+        .then(function(response) {
+          return response.json()
+        })
+        .then(function(responseJson) {
+          thisInsideApp.setState({
+            list: responseJson
+          });
+        })
+    };
+    reader.readAsText(file);
+  },
+
+  FilmFileLoadClick: function() {
+  },
+
   render: function() {
 
     let filterList = this.state.list.filter((film) => {
@@ -239,7 +322,7 @@ var App = React.createClass({
       } else {
         return film.film.stars.toLowerCase().indexOf(this.state.searchWord.toLowerCase()) !== -1
       }
-
+      var Id = indexOf(film)
     });
 
     return (
@@ -258,7 +341,7 @@ var App = React.createClass({
             <div className="row">
              <div className="col-md-12">
               <ul>{filterList.map((film) =>
-                <div key={film.film.id}>
+                <div key={film._id}>
                 {film.film.Show ? <FilmLong onDeleteClick={this.deleteFilm} onShowClick={this.changeShow} filmInArray={film}/>:<FilmShort onClick={this.changeShow} filmInArray={film}/>}
                 </div>
               )}</ul>
@@ -267,7 +350,9 @@ var App = React.createClass({
           </div>
         </div>
         <div className="col-md-4">
-          <IchBinForm onChange={this.seeForChangeInForm} onClick={this.addNewFilm}/>
+          <IchBinForm onChange={this.seeForChangeInForm} onClick={this.addNewFilm} getInit={this.state.newFilm}/>
+
+          <FilmLoad heaD='Here you can add your films within text file' labeL='File' clicK={this.FilmFileLoadClick} filE={this.FilmFileLoad}/>
         </div>
       </div>
     );

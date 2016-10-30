@@ -7,10 +7,8 @@ var iAmForm = React.createClass({
     this.props.onClick();
   },
 
-  handleChange: function(e) {
-    var whatIsDiff = e.target.value;
-    var whereIsDiff = e.target.id;
-    this.props.onChange(whatIsDiff, whereIsDiff);
+  handleChange: function(event) {
+    this.props.onChange(event);
 
   },
   render: function() {
@@ -21,27 +19,27 @@ var iAmForm = React.createClass({
                   <div className="form-group">
                       <label htmlFor="firstname" className="col-sm-2 control-label">Title</label>
                       <div className="col-sm-10">
-                      <input type="text" className="form-control" id="title" name="title" placeholder="Enter Film Title"/>
+                      <input value={this.props.getInit.title} type="text" className="form-control" id="title" name="title" placeholder="Enter Film Title"/>
                       </div>
                   </div>
                   <div className="form-group">
                       <label htmlFor="lastname" className="col-sm-2 control-label">Year</label>
                       <div className="col-sm-10">
-                          <input type="text" className="form-control" id="year" name="year" placeholder="Enter Film Year"/>
+                          <input value={this.props.getInit.year} type="text" className="form-control" id="year" name="year" placeholder="Enter Film Year"/>
                       </div>
                   </div>
 
                   <div className="form-group">
-                      <label htmlFor="emailid" className="col-sm-2 control-label">Quality</label>
+                      <label htmlFor="quality" className="col-sm-2 control-label">Quality</label>
                       <div className="col-sm-10">
-                          <input type="text" className="form-control" id="quality" name="quality" placeholder="Quality"/>
+                          <input value={this.props.getInit.quality} type="text" className="form-control" id="quality" name="quality" placeholder="Quality"/>
                       </div>
                   </div>
 
                   <div className="form-group">
-                      <label htmlFor="feedback" className="col-sm-2 control-label">Stars</label>
+                      <label htmlFor="stars" className="col-sm-2 control-label">Stars</label>
                       <div className="col-sm-10">
-                          <textarea className="form-control" id="stars" name="stars" rows="12"></textarea>
+                          <textarea value={this.props.getInit.stars} className="form-control" id="stars" name="stars" rows="8"></textarea>
                       </div>
                   </div>
                   <div className="form-group">
